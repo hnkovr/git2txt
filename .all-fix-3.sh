@@ -1,3 +1,68 @@
+#!/bin/bash
+
+# all-gen.sh - Generate all changes to fix git2txt installation with uv
+
+set -e
+
+echo "Generating fixes for git2txt installation with uv..."
+
+# Fix the install.sh script to properly set up git2text for global usage
+cat > install.sh << 'EOF'
+#!/bin/bash
+clear
+pwd
+# ./install.sh
+cat $0
+cat install.py
+
+set -ex
+
+# Create virtual environment
+uv venv
+
+# Activate the virtual environment and run the installation
+source .venv/bin/activate
+
+SCRIPT_DIR=$(dirname "$(readlink -f "$0" || realpath "$0")")
+python "$SCRIPT_DIR/install.py"
+
+# Check if git2text binary exists in venv
+if [ -f ".venv/bin/git2text" ]; then
+    echo ""
+    echo "🎉 Installation successful!"
+    echo ""
+    echo "To use git2text, you have several options:"
+    echo ""
+    echo "1. Activate the virtual environment each time:"
+    echo "   source .venv/bin/activate"
+    echo "   git2text --help"
+    echo ""
+    echo "2. Use the full path directly:"
+    echo "   $(pwd)/.venv/bin/git2text --help"
+    echo ""
+    echo "3. Create a global alias (add to your ~/.bashrc or ~/.zshrc):"
+    echo "   alias git2text='$(pwd)/.venv/bin/git2text'"
+    echo ""
+    echo "4. Create a symlink (requires sudo):"
+    read -p "   Do you want to create a symlink in /usr/local/bin? [y/N]: " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        sudo ln -sf "$(pwd)/.venv/bin/git2text" /usr/local/bin/git2text
+        echo "   ✅ Symlink created! You can now use 'git2text' globally."
+    else
+        echo "   Symlink not created."
+    fi
+    echo ""
+    echo "Testing the installation:"
+    .venv/bin/git2text --help || echo "❌ Something went wrong with the installation"
+else
+    echo "❌ git2text binary not found in .venv/bin/"
+    echo "Installation may have failed."
+fi
+EOF
+
+# Enhanced install.py with better post-installation handling
+cat > install.py << 'EOF'
 import os
 import sys
 import subprocess
@@ -133,3 +198,35 @@ def main():
 
 if __name__ == '__main__':
     main()
+EOF
+
+# Make the install.sh executable
+chmod +x install.sh
+
+# Create a helper script for easy activation
+cat > activate-git2text.sh << 'EOF'
+#!/bin/bash
+# Helper script to activate git2text virtual environment
+echo "Activating git2text virtual environment..."
+source .venv/bin/activate
+echo "Virtual environment activated. You can now use 'git2text' directly."
+echo "Type 'deactivate' to exit the virtual environment."
+EOF
+
+chmod +x activate-git2text.sh
+
+echo "✅ Generated enhanced installation scripts"
+echo ""
+echo "Files created:"
+echo "1. install.sh - Main installation script"
+echo "2. install.py - Enhanced Python installation logic"
+echo "3. activate-git2text.sh - Helper script to activate the environment"
+echo ""
+echo "Key improvements:"
+echo "1. Better binary detection and verification"
+echo "2. Post-installation options (symlink, alias, direct path)"
+echo "3. Interactive setup for global usage"
+echo "4. Helper script for easy environment activation"
+echo ""
+echo "Now you can run: ./install.sh"
+echo "After installation, you'll have multiple options to use git2text globally."

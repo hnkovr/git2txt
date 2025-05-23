@@ -1,0 +1,8 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="ShellCheck" enabled="true" level="ERROR" enabled_by_default="true" editorAttributes="ERRORS_ATTRIBUTES">
+      <shellcheck_settings value="SC1000,SC1001,SC1003,SC1004,SC1007,SC1008,SC1009,SC2010,SC2018,SC2019,SC2020,SC2021,SC2022,SC2024,SC2025,SC2026,SC2027,SC2028,SC2029,SC2030,SC2031,SC2032" />
+    </inspection_tool>
+  </profile>
+</component>
